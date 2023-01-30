@@ -44,15 +44,17 @@ export function ImageUpload() {
           // write your building UI
           <div className="upload__image-wrapper">
             <Box
-              onClick={onImageUpload}
+              onClick={imageList.length === 0 ? onImageUpload : () => { }}
               sx={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 400,
-                height: 180,
+                height: 300,
                 borderRadius: '4px',
+                padding: 0,
                 ...((imageList.length === 0) && { border: '2px solid rgba(150, 150, 150, 0.87)', borderStyle: 'dashed' }),
                 ...(isDragging && { backgroundColor: '#e3573b' })
               }}
@@ -61,42 +63,26 @@ export function ImageUpload() {
               {imageList.length === 0 &&
                 <Typography variant="body1" color={!isDragging ? 'rgba(150, 150, 150, 0.87)' : 'white'}>+ Insira a foto do produto</Typography>
               }
-              {imageList.map((image, index) => (
-                <div key={index}>
-                  <img
-                    src={image.dataURL}
-                    alt=""
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      overflow: 'hidden',
-                    }} />
-                  <div>
-                    <ColorButton onClick={() => onImageUpdate(index)}>Update</ColorButton>
-                    <ColorButton onClick={() => onImageRemove(index)}>Remove</ColorButton>
-                  </div>
+
+              {imageList.length > 0 &&
+                <img
+                  src={imageList[imageList.length - 1].dataURL}
+                  alt=""
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    overflow: 'hidden',
+                  }} />
+              }
+              {imageList.length > 0 &&
+                <div>
+                  <ColorButton onClick={() => onImageUpdate(imageList.length - 1)} sx={{ position: 'absolute', bottom: 0, right: 0, marginLeft: 'auto' }}>Mudar Foto</ColorButton>
                 </div>
-              ))}
+              }
             </Box>
-            {/* <ColorButton
-              style={isDragging ? { color: "red" } : undefined}
-              onClick={onImageUpload}
-              {...dragProps}
-            >
-              Click or Drop here
-            </ColorButton>
-            &nbsp;
-            <ColorButton onClick={onImageRemoveAll}>Remove all images</ColorButton>
-            {imageList.map((image, index) => (
-              <div key={index} className="image-item">
-                <img src={image.dataURL} alt="" width="100" />
-                <div className="image-item__btn-wrapper">
-                  <ColorButton onClick={() => onImageUpdate(index)}>Update</ColorButton>
-                  <ColorButton onClick={() => onImageRemove(index)}>Remove</ColorButton>
-                </div>
-              </div>
-            ))} */}
+
+
           </div>
         )
         }
