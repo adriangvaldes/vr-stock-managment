@@ -2,8 +2,13 @@ import { Box, ButtonProps, styled, Typography } from "@mui/material";
 import React from "react";
 import ImageUploading, { ImageListType } from "react-images-uploading";
 import Button from '@mui/material/Button';
+import { ImageToUploadType } from "../../pages/StockForm";
 
-export function ImageUpload() {
+type ImageUploadProps = {
+  loadImageToUpload: (image: ImageToUploadType) => void
+}
+
+export function ImageUpload({ loadImageToUpload }: ImageUploadProps) {
   const [images, setImages] = React.useState([]);
   const maxNumber = 69;
 
@@ -12,8 +17,14 @@ export function ImageUpload() {
     addUpdateIndex: number[] | undefined
   ) => {
     // data for submit
-    console.log(imageList, addUpdateIndex);
     setImages(imageList as never[]);
+    if (imageList.length > 0 && imageList[0].dataURL && imageList[0].file) {
+      loadImageToUpload({
+        url: imageList[0].dataURL,
+        type: imageList[0].file?.type,
+        file: imageList[0].file
+      })
+    }
   };
 
   const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
@@ -31,6 +42,7 @@ export function ImageUpload() {
         value={images}
         onChange={onChange}
         maxNumber={maxNumber}
+        resolutionType='ratio'
       >
         {({
           imageList,

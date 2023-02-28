@@ -4,15 +4,19 @@ import { Box, ButtonProps, CircularProgress, Container, FormControl, InputLabel,
 import { categories, ClothSubCategories, WoodSubCategories } from '../../utils/typeProducts';
 import { ImageUpload } from '../../components/ImageUpload';
 import { useForm, SubmitHandler } from "react-hook-form";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { db } from '../../database/firebaseConfig';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemas } from '../../database/schemas';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 type Inputs = {
   name: string,
+  code: string,
   price: string,
+  description: string,
   category: number,
+  stock: number,
   subCategory: number,
   photo?: any,
 };
@@ -24,9 +28,16 @@ export const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
+export type ImageToUploadType = {
+  url: string,
+  type: string,
+  file: File,
+}
+
 export function StockForm() {
   const [category, setCategory] = useState<any>('')
   const [loading, setLoading] = useState<any>(false)
+  const [imageToUpload, setImageToUpload] = useState<ImageToUploadType>()
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: yupResolver(schemas)
   });
@@ -34,17 +45,23 @@ export function StockForm() {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true)
+    if (!imageToUpload) return;
     try {
-      const productsRef = collection(db, 'products');
-      await addDoc(productsRef, data);
+      const storage = getStorage();
+      const storageRef = ref(storage, `productImages/${imageToUpload.file.name}`)
+      const productsCollectionRef = collection(db, 'products');
+      const productRef = await addDoc(productsCollectionRef, data);
+      await uploadBytes(storageRef, imageToUpload?.file)
+      const donwloadUrl = await getDownloadURL(storageRef)
+      await updateDoc(productRef, {
+        imageUrl: donwloadUrl,
+      });
+
     } catch (error) {
       console.log(error)
     }
     setLoading(false)
   };
-
-  console.log('TESTE');
-
 
   return (
     <div>
@@ -67,7 +84,9 @@ export function StockForm() {
             }}
           >
             <Typography variant="h6" sx={{ position: 'absolute', top: 30 }}>VR-ATELIE GERENCIAMENTO DE ESTOQUE</Typography>
+            <ImageUpload loadImageToUpload={setImageToUpload} />
             <TextField id="outlined-basic" label="Nome do produto" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("name")} />
+            <TextField id="outlined-basic" label="Código" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("code")} />
             <TextField
               id="outlined-basic"
               label="Preço"
@@ -76,7 +95,7 @@ export function StockForm() {
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               {...register("price")}
             />
-
+            <TextField id="outlined-basic" label="Descrição" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("description")} />
             <FormControl sx={{ minWidth: 400, width: 400 }}>
               <InputLabel id="category">Categoria</InputLabel>
               <Select
@@ -117,7 +136,7 @@ export function StockForm() {
                 ))}
               </Select>
             </FormControl>
-            <ImageUpload />
+            <TextField id="outlined-basic" label="Estoque" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("stock")} />
             <ColorButton variant="contained" size='large' sx={{ background: '#230f04', minWidth: 400, marginTop: 2 }} type='submit' disabled={loading}>
               Salvar Produto
               {loading && <CircularProgress size={20} color='error' thickness={5} sx={{ position: 'absolute', right: 80 }} />}
