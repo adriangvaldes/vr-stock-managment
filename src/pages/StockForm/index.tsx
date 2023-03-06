@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Button from '@mui/material/Button';
-import { Box, ButtonProps, CircularProgress, Container, FormControl, InputLabel, MenuItem, Select, styled, TextField, Typography } from '@mui/material';
+import { Box, ButtonProps, CircularProgress, Container, FormControl, Input, InputLabel, MenuItem, Select, styled, TextField, Typography } from '@mui/material';
 import { categories, ClothSubCategories, WoodSubCategories } from '../../utils/typeProducts';
 import { ImageUpload } from '../../components/ImageUpload';
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -9,6 +9,9 @@ import { db } from '../../database/firebaseConfig';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemas } from '../../database/schemas';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import CurrencyInput from 'react-currency-input-field';
+import React from 'react';
+
 
 type Inputs = {
   name: string,
@@ -33,6 +36,31 @@ export type ImageToUploadType = {
   type: string,
   file: File,
 }
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const CustomCurrencyInput = React.forwardRef<HTMLElement, CustomProps>(
+  function CustomCurrencyInput(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <CurrencyInput
+        id="input-example"
+        name="input-name"
+        placeholder="Please enter a number"
+        defaultValue={1000}
+        decimalsLimit={2}
+        onValueChange={(value, name) => console.log(value, name)}
+        prefix='R$'
+        decimalSeparator=","
+        groupSeparator="."
+      />
+    );
+  },
+);
+
 
 export function StockForm() {
   const [category, setCategory] = useState<any>('')
@@ -89,12 +117,22 @@ export function StockForm() {
             <TextField id="outlined-basic" label="Código" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("code")} />
             <TextField
               id="outlined-basic"
-              label="Preço"
+              label="Preço R$"
               variant="outlined"
               sx={{ minWidth: 400, width: 400 }}
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               {...register("price")}
             />
+            <FormControl variant="standard">
+              <InputLabel htmlFor="formatted-text-mask-input">Preço R$</InputLabel>
+              <Input
+                // value={values.textmask}
+                // onChange={handleChange}
+                name="textmask"
+                id="formatted-text-mask-input"
+                inputComponent={CustomCurrencyInput as any}
+              />
+            </FormControl>
             <TextField id="outlined-basic" label="Descrição" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("description")} />
             <FormControl sx={{ minWidth: 400, width: 400 }}>
               <InputLabel id="category">Categoria</InputLabel>

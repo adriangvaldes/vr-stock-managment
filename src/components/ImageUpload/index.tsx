@@ -1,11 +1,11 @@
 import { Box, ButtonProps, styled, Typography } from "@mui/material";
 import React from "react";
-import ImageUploading, { ImageListType } from "react-images-uploading";
+import ImageUploading, { ImageListType, ImageType } from "react-images-uploading";
 import Button from '@mui/material/Button';
 import { ImageToUploadType } from "../../pages/StockForm";
 
 type ImageUploadProps = {
-  loadImageToUpload: (image: ImageToUploadType) => void
+  loadImageToUpload: (image: ImageToUploadType) => void;
 }
 
 export function ImageUpload({ loadImageToUpload }: ImageUploadProps) {

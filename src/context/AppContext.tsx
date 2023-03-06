@@ -4,19 +4,25 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 type AuthContextProps = {
   user: boolean;
   loadUser: (user: any) => void;
+  update: () => void;
 }
 
 type AuthProviderProps = {
   children: ReactNode;
 }
 
-export const AuthContext = createContext({} as AuthContextProps);
+export const AppContext = createContext({} as AuthContextProps);
 
-export const AuthProvider = ({ children, }: AuthProviderProps) => {
+export const AppProvider = ({ children, }: AuthProviderProps) => {
   const [user, setUser] = useState<any>(null);
+  const [isUpdated, setIsUpdated] = useState(false);
 
   function loadUser(user: any) {
     setUser(user);
+  }
+
+  function update() {
+    setIsUpdated(prevState => !prevState);
   }
 
   useEffect(() => {
@@ -33,17 +39,18 @@ export const AuthProvider = ({ children, }: AuthProviderProps) => {
 
 
   return (
-    <AuthContext.Provider
+    <AppContext.Provider
       value={{
         user,
         loadUser,
+        update,
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </AppContext.Provider>
   );
 }
 
-export const useAuth = () => {
-  return useContext(AuthContext);
+export const useAppContext = () => {
+  return useContext(AppContext);
 }

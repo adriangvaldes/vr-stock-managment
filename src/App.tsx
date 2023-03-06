@@ -1,17 +1,15 @@
 import './App.css'
 import Login from './pages/Login';
-import { StockForm } from './pages/StockForm';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useState } from 'react';
-import { useAuth } from './context/AuthContext';
+import { useAppContext } from './context/AppContext';
+import ProductsPainel from './pages/ProductsPainel';
 
 function App() {
-  const [toRender, setToRender] = useState(<></>)
-  const { user } = useAuth();
+  const { user } = useAppContext();
 
   return (
     <>
-      {user ? <StockForm /> : <Login />}
+      {user ? <ProductsPainel /> : <Login />}
     </>
   )
 }
