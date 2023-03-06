@@ -7,7 +7,7 @@ import { ColorButton, ImageToUploadType } from "../../pages/StockForm";
 import { ImageUpload } from "../ImageUpload";
 import { categories, ClothSubCategories, WoodSubCategories } from '../../utils/typeProducts';
 import { useAppContext } from "../../context/AppContext";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../database/firebaseConfig";
 
 type ProductType = {
@@ -41,19 +41,20 @@ export function FormProduto({ product }: FormProdutoI) {
   const [stock, setStock] = useState<any>(product.stock ?? '');
   //----------------------------------------------------------//
 
-  function handleUpdate() {
+  async function handleUpdate() {
     setLoading(true)
-    if (!imageToUpload) return;
+    // if (!imageToUpload) return;
     try {
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `productImages/${imageToUpload.file.name}`)
-      // const productsCollectionRef = collection(db, 'products');
-      // const productRef = await addDoc(productsCollectionRef, data);
-      // await uploadBytes(storageRef, imageToUpload?.file)
-      // const donwloadUrl = await getDownloadURL(storageRef)
-      // await updateDoc(productRef, {
-      //   imageUrl: donwloadUrl,
-      // });
+      await updateDoc(doc(db, 'products', product.id), {
+        ...(name && { name }),
+        ...(code && { code }),
+        ...(price && { price }),
+        ...(description && { description }),
+        ...(category && { category }),
+        ...(subCategory && { subCategory }),
+        ...(stock && { stock }),
+        ...(imageToUpload && { imageUrl: imageToUpload }),
+      });
       update();
     } catch (error) {
       console.log(error)
@@ -61,20 +62,10 @@ export function FormProduto({ product }: FormProdutoI) {
     setLoading(false)
   };
 
-  function handleDelete() {
+  async function handleDelete() {
     setLoading(true)
-    if (!imageToUpload) return;
     try {
-      deleteDoc(doc(db, 'products', product.id))
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `productImages/${imageToUpload.file.name}`)
-      // const productsCollectionRef = collection(db, 'products');
-      // const productRef = await addDoc(productsCollectionRef, data);
-      // await uploadBytes(storageRef, imageToUpload?.file)
-      // const donwloadUrl = await getDownloadURL(storageRef)
-      // await updateDoc(productRef, {
-      //   imageUrl: donwloadUrl,
-      // });
+      await deleteDoc(doc(db, 'products', product.id))
       update();
     } catch (error) {
       console.log(error)

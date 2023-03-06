@@ -7,6 +7,7 @@ import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../database/firebaseConfig";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { FormProduto } from "../../components/FormProduto";
+import { useAppContext } from "../../context/AppContext";
 type Props = {}
 
 const style = {
@@ -23,9 +24,10 @@ const style = {
 };
 
 const columns: GridColDef[] = [
-  { field: 'name', headerName: 'Nome', width: 300 },
-  { field: 'code', headerName: 'Cód.', width: 50 },
-  { field: 'price', headerName: 'Preço R$', width: 130, type: 'number' },
+  { field: 'code', headerName: 'Cód.', width: 100 },
+  { field: 'name', headerName: 'Nome', width: 400 },
+  { field: 'price', headerName: 'Preço R$', width: 150, type: 'number' },
+  { field: 'stock', headerName: 'Qtd', width: 150, type: 'number' },
   {
     field: 'category',
     headerName: 'Categoria',
@@ -39,7 +41,7 @@ const columns: GridColDef[] = [
     width: 100,
   },
   // { field: 'imageUrl', headerName: 'Fotos', width: 300 },
-  { field: 'description', headerName: 'Descrição', width: 300 },
+  { field: 'description', headerName: 'Descrição', width: 700 },
   // {
   //   field: 'fullName',
   //   headerName: 'Full name',
@@ -53,15 +55,11 @@ const columns: GridColDef[] = [
 
 export default function ProductsPainel({ }: Props) {
   const [loading, setLoading] = useState<any>(false);
-  const [hasDelete, setHasDelete] = useState(false);
-  const [hasUdate, setHasUdate] = useState(false);
   const [openViewProduct, setOpenViewProduct] = useState(false);
   const [products, setProducts] = useState<ProductsType[]>([]);
   const [value, setValue] = useState("1");
   const [productsToDelete, setProductsToDelete] = useState<any[]>([]);
-
-  console.log(productsToDelete);
-
+  const { isUpdated, update } = useAppContext();
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -74,13 +72,13 @@ export default function ProductsPainel({ }: Props) {
       setLoading(false);
     }
     loadProducts()
-  }, [hasDelete, hasUdate])
+  }, [isUpdated])
 
   async function handleDeleteProducts() {
     setLoading(true);
     const deletePromises = productsToDelete.map(product => deleteDoc(doc(db, 'products', product.id)));
     await Promise.all(deletePromises)
-    setHasDelete(prevState => !prevState)
+    update();
     setLoading(false);
   }
 
@@ -98,10 +96,11 @@ export default function ProductsPainel({ }: Props) {
         justifyContent: 'center',
         gap: 2,
         minHeight: 750,
+        width: '90vw',
         backgroundColor: 'white',
         borderRadius: '10px',
-        padding: '3rem',
-        paddingTop: '6rem',
+        padding: '2rem',
+        alignSelf: 'center'
       }}
     >
       {products.length > 0 &&
@@ -110,6 +109,7 @@ export default function ProductsPainel({ }: Props) {
           columns={columns}
           // pageSize={5}
           // rowsPerPageOptions={[5]}
+          loading={loading}
           checkboxSelection
           onRowSelectionModelChange={(productsId) => setProductsToDelete(productsId.map(id => ({
             ...(products.find(element => element.id === id))

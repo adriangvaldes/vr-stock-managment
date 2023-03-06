@@ -5,6 +5,7 @@ type AuthContextProps = {
   user: boolean;
   loadUser: (user: any) => void;
   update: () => void;
+  isUpdated: boolean
 }
 
 type AuthProviderProps = {
@@ -44,6 +45,7 @@ export const AppProvider = ({ children, }: AuthProviderProps) => {
         user,
         loadUser,
         update,
+        isUpdated,
       }}
     >
       {children}
