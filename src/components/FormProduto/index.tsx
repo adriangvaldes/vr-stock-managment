@@ -19,7 +19,7 @@ type ProductType = {
   category: number,
   stock: number,
   subCategory: number,
-  photo?: any,
+  imageUrl?: any,
 };
 
 interface FormProdutoI {
@@ -27,7 +27,7 @@ interface FormProdutoI {
 }
 
 export function FormProduto({ product }: FormProdutoI) {
-  const [imageToUpload, setImageToUpload] = useState<ImageToUploadType>(product.photo);
+  const [imageToUpload, setImageToUpload] = useState<ImageToUploadType>(product.imageUrl);
   const [loading, setLoading] = useState<any>(false);
   const { update } = useAppContext();
 
@@ -95,7 +95,7 @@ export function FormProduto({ product }: FormProdutoI) {
       </ColorButton>
     </Box>
 
-    <ImageUpload loadImageToUpload={setImageToUpload} />
+    <ImageUpload loadImageToUpload={setImageToUpload} imageToPreview={imageToUpload} />
     <TextField
       id="outlined-basic"
       label="Nome do produto"

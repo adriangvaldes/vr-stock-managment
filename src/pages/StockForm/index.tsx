@@ -11,7 +11,9 @@ import { schemas } from '../../database/schemas';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CurrencyInput from 'react-currency-input-field';
 import React from 'react';
-
+import { Link } from 'react-router-dom';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { SvgIcon } from '@mui/material';
 
 type Inputs = {
   name: string,
@@ -111,7 +113,23 @@ export function StockForm() {
               paddingTop: '4rem',
             }}
           >
-            <Typography variant="h6" sx={{ position: 'absolute', top: 30 }}>VR-ATELIE GERENCIAMENTO DE ESTOQUE</Typography>
+            <Typography variant="h6" sx={{ position: 'absolute', top: 30 }}>Cadastro de produtos</Typography>
+
+            <Link to='/productsPainel'
+              style={{
+                color: '#230f04',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px'
+              }}>
+              <Typography variant="body1">
+                Ver painel de produtos
+              </Typography>
+              <LaunchIcon component={LaunchIcon} fontSize='small' ></LaunchIcon>
+            </Link>
+
             <ImageUpload loadImageToUpload={setImageToUpload} />
             <TextField id="outlined-basic" label="Nome do produto" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("name")} />
             <TextField id="outlined-basic" label="Código" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("code")} />
@@ -123,7 +141,7 @@ export function StockForm() {
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
               {...register("price")}
             />
-            <FormControl variant="standard">
+            {/* <FormControl variant="standard">
               <InputLabel htmlFor="formatted-text-mask-input">Preço R$</InputLabel>
               <Input
                 // value={values.textmask}
@@ -132,7 +150,7 @@ export function StockForm() {
                 id="formatted-text-mask-input"
                 inputComponent={CustomCurrencyInput as any}
               />
-            </FormControl>
+            </FormControl> */}
             <TextField id="outlined-basic" label="Descrição" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("description")} />
             <FormControl sx={{ minWidth: 400, width: 400 }}>
               <InputLabel id="category">Categoria</InputLabel>

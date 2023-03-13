@@ -13,7 +13,7 @@ type Inputs = {
   password: string,
 };
 
-export default function Login({ }: Props) {
+export function Login({ }: Props) {
   const [loading, setLoading] = useState<any>(false)
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: yupResolver(loginSchema)

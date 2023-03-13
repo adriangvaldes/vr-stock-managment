@@ -6,11 +6,17 @@ import { ImageToUploadType } from "../../pages/StockForm";
 
 type ImageUploadProps = {
   loadImageToUpload: (image: ImageToUploadType) => void;
+  imageToPreview?: any;
 }
 
-export function ImageUpload({ loadImageToUpload }: ImageUploadProps) {
-  const [images, setImages] = React.useState([]);
+export function ImageUpload({ loadImageToUpload, imageToPreview }: ImageUploadProps) {
+  const [images, setImages] = React.useState(imageToPreview ? [{
+    dataURL: imageToPreview,
+  }] : []);
   const maxNumber = 69;
+
+  console.log(images);
+
 
   const onChange = (
     imageList: ImageListType,
