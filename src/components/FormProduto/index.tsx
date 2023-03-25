@@ -27,7 +27,7 @@ interface FormProdutoI {
 }
 
 export function FormProduto({ product }: FormProdutoI) {
-  const [imageToUpload, setImageToUpload] = useState<ImageToUploadType>(product.imageUrl);
+  const [imagesToUpload, setImageToUpload] = useState<ImageToUploadType[]>(product.imageUrl);
   const [loading, setLoading] = useState<any>(false);
   const { update } = useAppContext();
 
@@ -43,7 +43,7 @@ export function FormProduto({ product }: FormProdutoI) {
 
   async function handleUpdate() {
     setLoading(true)
-    // if (!imageToUpload) return;
+    // if (!imagesToUpload) return;
     try {
       await updateDoc(doc(db, 'products', product.id), {
         ...(name && { name }),
@@ -53,7 +53,7 @@ export function FormProduto({ product }: FormProdutoI) {
         ...(category && { category }),
         ...(subCategory && { subCategory }),
         ...(stock && { stock }),
-        ...(imageToUpload && { imageUrl: imageToUpload }),
+        ...(imagesToUpload && { imageUrl: imagesToUpload }),
       });
       update();
     } catch (error) {
@@ -95,7 +95,7 @@ export function FormProduto({ product }: FormProdutoI) {
       </ColorButton>
     </Box>
 
-    <ImageUpload loadImageToUpload={setImageToUpload} imageToPreview={imageToUpload} />
+    <ImageUpload loadImageToUpload={setImageToUpload} imagesToPreview={product.imageUrl} />
     <TextField
       id="outlined-basic"
       label="Nome do produto"

@@ -67,7 +67,7 @@ const CustomCurrencyInput = React.forwardRef<HTMLElement, CustomProps>(
 export function StockForm() {
   const [category, setCategory] = useState<any>('')
   const [loading, setLoading] = useState<any>(false)
-  const [imageToUpload, setImageToUpload] = useState<ImageToUploadType>()
+  const [imagesToUpload, setImagesToUpload] = useState<ImageToUploadType[]>()
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: yupResolver(schemas)
   });
@@ -75,18 +75,22 @@ export function StockForm() {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setLoading(true)
-    if (!imageToUpload) return;
+    if (!imagesToUpload) return;
     try {
       const storage = getStorage();
-      const storageRef = ref(storage, `productImages/${imageToUpload.file.name}`)
+      let donwloadsUrl = [];
       const productsCollectionRef = collection(db, 'products');
       const productRef = await addDoc(productsCollectionRef, data);
-      await uploadBytes(storageRef, imageToUpload?.file)
-      const donwloadUrl = await getDownloadURL(storageRef)
-      await updateDoc(productRef, {
-        imageUrl: donwloadUrl,
-      });
 
+      for (const image of imagesToUpload) {
+        const storageRef = ref(storage, `productImages/${image.file.name}`)
+        await uploadBytes(storageRef, image?.file)
+        donwloadsUrl.push(await getDownloadURL(storageRef))
+      }
+
+      await updateDoc(productRef, {
+        imagesUrl: donwloadsUrl,
+      });
     } catch (error) {
       console.log(error)
     }
@@ -130,7 +134,7 @@ export function StockForm() {
               <LaunchIcon component={LaunchIcon} fontSize='small' ></LaunchIcon>
             </Link>
 
-            <ImageUpload loadImageToUpload={setImageToUpload} />
+            <ImageUpload loadImageToUpload={setImagesToUpload} />
             <TextField id="outlined-basic" label="Nome do produto" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("name")} />
             <TextField id="outlined-basic" label="Código" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("code")} />
             <TextField
