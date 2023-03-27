@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import Button from '@mui/material/Button';
 import { Box, ButtonProps, CircularProgress, Container, FormControl, Input, InputLabel, MenuItem, Select, styled, TextField, Typography } from '@mui/material';
 import { categories, ClothSubCategories, WoodSubCategories } from '../../utils/typeProducts';
@@ -9,11 +9,9 @@ import { db } from '../../database/firebaseConfig';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemas } from '../../database/schemas';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import CurrencyInput from 'react-currency-input-field';
-import React from 'react';
 import { Link } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
-import { SvgIcon } from '@mui/material';
+import { NumericFormat } from 'react-number-format';
 
 type Inputs = {
   name: string,
@@ -44,31 +42,35 @@ interface CustomProps {
   name: string;
 }
 
-const CustomCurrencyInput = React.forwardRef<HTMLElement, CustomProps>(
-  function CustomCurrencyInput(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <CurrencyInput
-        id="input-example"
-        name="input-name"
-        placeholder="Please enter a number"
-        defaultValue={1000}
-        decimalsLimit={2}
-        onValueChange={(value, name) => console.log(value, name)}
-        prefix='R$'
-        decimalSeparator=","
-        groupSeparator="."
-      />
-    );
-  },
-);
+function CurrencyInput(props: any) {
+  const { inputRef, onChange, ...other } = props;
 
+  return (
+    <NumericFormat
+      {...other}
+      getInputRef={inputRef}
+      onValueChange={(values: any) => {
+        onChange({
+          target: {
+            name: props.name,
+            value: values.value,
+          },
+        });
+      }}
+      thousandSeparator
+      prefix="$"
+      decimalScale={2}
+      allowNegative={false}
+    />
+  );
+}
 
 export function StockForm() {
   const [category, setCategory] = useState<any>('')
   const [loading, setLoading] = useState<any>(false)
   const [imagesToUpload, setImagesToUpload] = useState<ImageToUploadType[]>()
-  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
+  const [resetImageFlag, setResetImageFlag] = useState(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<Inputs>({
     resolver: yupResolver(schemas)
   });
   const { onBlur: onBlurCategory, name: nameCategory, ref: refCategory } = register('category');
@@ -91,10 +93,26 @@ export function StockForm() {
       await updateDoc(productRef, {
         imagesUrl: donwloadsUrl,
       });
+      reset();
+      setImagesToUpload([]);
+      setCategory('');
+      setResetImageFlag(p => !p);
     } catch (error) {
       console.log(error)
     }
     setLoading(false)
+  };
+
+  const handleCodemask = (value: string) => {
+    return value
+      .replace(/(\d{3})(\d)/, '$1-$2') // add dash after first 3 digits
+  }
+
+  const handlePriceMask = (value: string) => {
+    return value
+      .replace(/\D/g, '') // remove non-numeric characters
+    // .replace(/(\d{3})(\d)/, '$1.$2') // add period after next three digits
+    // .replace(/^\d{1,7}$/, ''); // add dash after last two digits
   };
 
   return (
@@ -134,15 +152,40 @@ export function StockForm() {
               <LaunchIcon component={LaunchIcon} fontSize='small' ></LaunchIcon>
             </Link>
 
-            <ImageUpload loadImageToUpload={setImagesToUpload} />
+            <ImageUpload loadImageToUpload={setImagesToUpload} resetImageFlag={resetImageFlag} />
             <TextField id="outlined-basic" label="Nome do produto" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("name")} />
-            <TextField id="outlined-basic" label="Código" variant="outlined" sx={{ minWidth: 400, width: 400 }} {...register("code")} />
+            <TextField
+              id="outlined-basic"
+              label="Código"
+              variant="outlined"
+              sx={{ minWidth: 400, width: 400 }}
+              inputProps={{
+                maxLength: 8,
+                inputComponent: CurrencyInput,
+                onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                  // const { value } = event.target;
+                  const inputValue = event.target.value;
+                  if (inputValue.match(/^\w{0,3}\d{0,4}$/)) {
+                    event.target.value = inputValue
+                      .replace(/(\d{3})(\d)/, '$1-$2') // add dash after first 3 digits
+                  }
+                  // event.target.value = handleCodemask(value);
+                },
+              }}
+              {...register("code")}
+            />
             <TextField
               id="outlined-basic"
               label="Preço R$"
               variant="outlined"
               sx={{ minWidth: 400, width: 400 }}
-              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              inputProps={{
+                inputComponent: CurrencyInput,
+                onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                  const { value } = event.target;
+                  event.target.value = handlePriceMask(value);
+                },
+              }}
               {...register("price")}
             />
             {/* <FormControl variant="standard">

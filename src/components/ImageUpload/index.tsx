@@ -1,5 +1,5 @@
 import { Box, ButtonProps, styled, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ImageUploading, { ImageListType, ImageType } from "react-images-uploading";
 import Button from '@mui/material/Button';
 import { ImageToUploadType } from "../../pages/StockForm";
@@ -9,17 +9,27 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 type ImageUploadProps = {
   loadImageToUpload: (images: ImageToUploadType[]) => void;
   imagesToPreview?: any;
+  resetImageFlag: boolean;
 }
 
-export function ImageUpload({ loadImageToUpload, imagesToPreview }: ImageUploadProps) {
-  const [images, setImages] = React.useState(imagesToPreview ? imagesToPreview.map((previewImage: any) => ({
-    dataURL: previewImage,
-  })) : []);
+export function ImageUpload({ loadImageToUpload, imagesToPreview, resetImageFlag }: ImageUploadProps) {
+  const imagesArray = imagesToPreview ?
+    typeof imagesToPreview !== 'string' ?
+      imagesToPreview.map((previewImage: any) => ({
+        dataURL: previewImage,
+      }))
+      : [{
+        dataURL: imagesToPreview
+      }]
+    : []
+  const [images, setImages] = React.useState(imagesArray);
   const [imageSelected, setImageSelected] = useState(0);
   const maxNumber = 69;
 
-  console.log(imagesToPreview);
-
+  useEffect(() => {
+    if (imagesToPreview) return;
+    setImages([]);
+  }, [resetImageFlag])
 
   function handleChangeImage(direction: string) {
     switch (direction) {

@@ -1,7 +1,7 @@
-import { Box, CircularProgress, ImageList, ImageListItem, Modal, Tab, Typography } from "@mui/material"
+import { Box, CircularProgress, Modal, Tab } from "@mui/material"
 import { useEffect, useState } from "react";
 import { getProducts, ProductsType } from "../../database/functions/products";
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ColorButton } from "../StockForm";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../database/firebaseConfig";
@@ -24,24 +24,22 @@ const style = {
 };
 
 const columns: GridColDef[] = [
-  { field: 'code', headerName: 'Cód.', width: 100 },
-  { field: 'name', headerName: 'Nome', width: 400 },
-  { field: 'price', headerName: 'Preço R$', width: 150, type: 'number' },
-  { field: 'stock', headerName: 'Qtd', width: 150, type: 'number' },
+  { field: 'code', headerName: 'Cód.' },
+  { field: 'name', headerName: 'Nome', width: 300 },
+  { field: 'price', headerName: 'Preço R$', type: 'number' },
+  { field: 'stock', headerName: 'Qtd', type: 'number' },
   {
     field: 'category',
     headerName: 'Categoria',
     type: 'number',
-    width: 100,
   },
   {
     field: 'subCategory',
     headerName: 'Sub Categoria',
     type: 'number',
-    width: 100,
   },
   // { field: 'imageUrl', headerName: 'Fotos', width: 300 },
-  { field: 'description', headerName: 'Descrição', width: 700 },
+  { field: 'description', headerName: 'Descrição', width: 600 },
   // {
   //   field: 'fullName',
   //   headerName: 'Full name',
@@ -86,6 +84,9 @@ export default function ProductsPainel({ }: Props) {
     setOpenViewProduct(true);
   }
 
+  console.log(productsToDelete);
+
+
   return (
     <Box
       sx={{
@@ -104,17 +105,20 @@ export default function ProductsPainel({ }: Props) {
       }}
     >
       {products.length > 0 &&
-        <DataGrid
-          rows={products}
-          columns={columns}
-          // pageSize={5}
-          // rowsPerPageOptions={[5]}
-          loading={loading}
-          checkboxSelection
-          onRowSelectionModelChange={(productsId) => setProductsToDelete(productsId.map(id => ({
-            ...(products.find(element => element.id === id))
-          })))}
-        />}
+        <div style={{ height: '80vh', width: '100%' }}>
+          <DataGrid
+            rows={products}
+            columns={columns}
+            // pageSize={5}
+            // rowsPerPageOptions={[5]}
+            loading={loading}
+            checkboxSelection
+            onRowSelectionModelChange={(productsId) => setProductsToDelete(productsId.map(id => ({
+              ...(products.find(element => element.id === id))
+            })))}
+          />
+        </div>
+      }
       <Box display={'flex'} gap={2}>
         <ColorButton variant="contained" size='large' sx={{ background: '#230f04', minWidth: 400, marginTop: 2 }} type='button' onClick={handleDeleteProducts} disabled={productsToDelete.length === 0}>
           Deletar Produto(s)

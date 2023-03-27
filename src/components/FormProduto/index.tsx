@@ -1,8 +1,5 @@
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, CircularProgress, FormControl, Input, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Box, CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { schemas } from "../../database/schemas";
 import { ColorButton, ImageToUploadType } from "../../pages/StockForm";
 import { ImageUpload } from "../ImageUpload";
 import { categories, ClothSubCategories, WoodSubCategories } from '../../utils/typeProducts';
@@ -19,7 +16,7 @@ type ProductType = {
   category: number,
   stock: number,
   subCategory: number,
-  imageUrl?: any,
+  imagesUrl?: any,
 };
 
 interface FormProdutoI {
@@ -27,9 +24,12 @@ interface FormProdutoI {
 }
 
 export function FormProduto({ product }: FormProdutoI) {
-  const [imagesToUpload, setImageToUpload] = useState<ImageToUploadType[]>(product.imageUrl);
+  console.log('PRODUTO: ', product);
+
+  const [imagesToUpload, setImageToUpload] = useState<ImageToUploadType[]>(product.imagesUrl);
   const [loading, setLoading] = useState<any>(false);
   const { update } = useAppContext();
+  const [resetImageFlag, setResetImageFlag] = useState(false);
 
   //FORM Variables
   const [name, setName] = useState<any>(product.name ?? '');
@@ -40,6 +40,17 @@ export function FormProduto({ product }: FormProdutoI) {
   const [subCategory, setSubCategory] = useState<any>(product.subCategory ?? '');
   const [stock, setStock] = useState<any>(product.stock ?? '');
   //----------------------------------------------------------//
+
+  function clearFelds() {
+    setName('');
+    setCode('');
+    setPrice('');
+    setDescription('');
+    setImageToUpload([]);
+    setCategory('');
+    setSubCategory('');
+    setResetImageFlag(p => !p);
+  }
 
   async function handleUpdate() {
     setLoading(true)
@@ -95,7 +106,7 @@ export function FormProduto({ product }: FormProdutoI) {
       </ColorButton>
     </Box>
 
-    <ImageUpload loadImageToUpload={setImageToUpload} imagesToPreview={product.imageUrl} />
+    <ImageUpload loadImageToUpload={setImageToUpload} imagesToPreview={product.imagesUrl} resetImageFlag={resetImageFlag} />
     <TextField
       id="outlined-basic"
       label="Nome do produto"
