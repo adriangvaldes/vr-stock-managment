@@ -42,28 +42,28 @@ interface CustomProps {
   name: string;
 }
 
-function CurrencyInput(props: any) {
-  const { inputRef, onChange, ...other } = props;
+// function CurrencyInput(props: any) {
+//   const { inputRef, onChange, ...other } = props;
 
-  return (
-    <NumericFormat
-      {...other}
-      getInputRef={inputRef}
-      onValueChange={(values: any) => {
-        onChange({
-          target: {
-            name: props.name,
-            value: values.value,
-          },
-        });
-      }}
-      thousandSeparator
-      prefix="$"
-      decimalScale={2}
-      allowNegative={false}
-    />
-  );
-}
+//   return (
+//     <NumericFormat
+//       {...other}
+//       getInputRef={inputRef}
+//       onValueChange={(values: any) => {
+//         onChange({
+//           target: {
+//             name: props.name,
+//             value: values.value,
+//           },
+//         });
+//       }}
+//       thousandSeparator
+//       prefix="$"
+//       decimalScale={2}
+//       allowNegative={false}
+//     />
+//   );
+// }
 
 export function StockForm() {
   const [category, setCategory] = useState<any>('')
@@ -161,7 +161,6 @@ export function StockForm() {
               sx={{ minWidth: 400, width: 400 }}
               inputProps={{
                 maxLength: 8,
-                inputComponent: CurrencyInput,
                 onChange: (event: ChangeEvent<HTMLInputElement>) => {
                   // const { value } = event.target;
                   const inputValue = event.target.value;
@@ -180,7 +179,6 @@ export function StockForm() {
               variant="outlined"
               sx={{ minWidth: 400, width: 400 }}
               inputProps={{
-                inputComponent: CurrencyInput,
                 onChange: (event: ChangeEvent<HTMLInputElement>) => {
                   const { value } = event.target;
                   event.target.value = handlePriceMask(value);
